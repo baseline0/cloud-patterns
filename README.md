@@ -8,7 +8,7 @@ This repository teaches **cloud design patterns** (not provider features) using 
 
 Explore all 10 scenarios visually with clickable links to implementations:
 
-👉 **[View Interactive Diagrams](architecture/index.html)** (LikeC4 C4 model)
+👉 **[View Interactive Diagrams →](https://baseline0.github.io/cloud-patterns/)** (Live on GitHub Pages)
 
 Each diagram links directly to:
 - 📂 Terraform infrastructure code (AWS/Azure/GCP)
