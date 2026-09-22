@@ -207,6 +207,92 @@
         .hidden {
             display: none;
         }
+
+        .status-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.75em;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-badge.deployed {
+            background: #22c55e;
+            color: white;
+        }
+
+        .status-badge.ready {
+            background: #eab308;
+            color: black;
+        }
+
+        .scenario-card {
+            position: relative;
+        }
+
+        .legend {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .legend-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 0.95em;
+        }
+
+        .legend-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .legend-item {
+            display: flex;
+            gap: 12px;
+            align-items: start;
+        }
+
+        .legend-item .status-badge {
+            position: static;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .legend-description {
+            color: #666;
+            font-size: 0.9em;
+            line-height: 1.4;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #22c55e;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
     </style>
 </head>
 <body>
@@ -242,6 +328,20 @@
             <button class="filter-btn" onclick="filterScenarios('devops')">DevOps</button>
         </div>
 
+        <div class="legend">
+            <div class="legend-title">📌 Scenario Status</div>
+            <div class="legend-items">
+                <div class="legend-item">
+                    <span class="status-badge deployed">✅ Deployed</span>
+                    <div class="legend-description">Tested locally, works end-to-end. Ready to run today.</div>
+                </div>
+                <div class="legend-item">
+                    <span class="status-badge ready">📁 Ready</span>
+                    <div class="legend-description">Terraform + docs complete. Local testing in progress.</div>
+                </div>
+            </div>
+        </div>
+
         <div class="scenarios-grid" id="scenarios">
             <!-- Scenarios will be generated here -->
         </div>
@@ -264,6 +364,8 @@
                 description: "Host static websites on S3 with CloudFront CDN for global distribution.",
                 technologies: ["AWS S3", "CloudFront", "Static Content"],
                 tags: ["serverless", "basic"],
+                status: "deployed",
+                quickStart: "bash scenarios/01-static-website/local-setup.sh",
                 links: [
                     { title: "Terraform", url: "https://github.com/baseline0/cloud-patterns/blob/main/scenarios/01-static-website/terraform/main.tf" },
                     { title: "README", url: "https://github.com/baseline0/cloud-patterns/blob/main/scenarios/01-static-website/README.md" }
@@ -275,6 +377,8 @@
                 description: "Build REST APIs with Lambda and API Gateway. Scales automatically with traffic.",
                 technologies: ["AWS Lambda", "API Gateway", "REST API"],
                 tags: ["serverless", "basic"],
+                status: "deployed",
+                quickStart: "bash scenarios/02-serverless-api/local-setup.sh",
                 links: [
                     { title: "Terraform", url: "https://github.com/baseline0/cloud-patterns/blob/main/scenarios/02-serverless-api/terraform/main.tf" },
                     { title: "README", url: "https://github.com/baseline0/cloud-patterns/blob/main/scenarios/02-serverless-api/README.md" }
@@ -286,6 +390,8 @@
                 description: "React to events with S3, SNS, and Lambda. Decouple components using pub/sub messaging.",
                 technologies: ["AWS S3", "SNS", "Lambda"],
                 tags: ["serverless", "intermediate"],
+                status: "deployed",
+                quickStart: "bash scenarios/03-event-driven/local-setup.sh",
                 links: [
                     { title: "Terraform", url: "https://github.com/baseline0/cloud-patterns/blob/main/scenarios/03-event-driven/terraform/main.tf" },
                     { title: "README", url: "https://github.com/baseline0/cloud-patterns/blob/main/scenarios/03-event-driven/README.md" }
@@ -297,6 +403,8 @@
                 description: "Combine DynamoDB, Lambda, and API Gateway for a complete data API with create, read, update, delete operations.",
                 technologies: ["AWS DynamoDB", "Lambda", "API Gateway"],
                 tags: ["serverless", "intermediate"],
+                status: "deployed",
+                quickStart: "bash scenarios/04-crud-api/local-setup.sh",
                 links: [
                     { title: "Terraform", url: "https://github.com/baseline0/cloud-patterns/blob/main/scenarios/04-crud-api/terraform/main.tf" },
                     { title: "README", url: "https://github.com/baseline0/cloud-patterns/blob/main/scenarios/04-crud-api/README.md" }
@@ -308,6 +416,8 @@
                 description: "Classic three-tier architecture with load balancer, application servers, and relational database.",
                 technologies: ["AWS ALB", "EC2", "RDS"],
                 tags: ["enterprise", "intermediate"],
+                status: "deployed",
+                quickStart: "bash scenarios/05-3tier-web/local-setup.sh",
                 links: [
                     { title: "Terraform", url: "https://github.com/baseline0/cloud-patterns/blob/main/scenarios/05-3tier-web/terraform/main.tf" },
                     { title: "README", url: "https://github.com/baseline0/cloud-patterns/blob/main/scenarios/05-3tier-web/README.md" }
@@ -319,6 +429,8 @@
                 description: "Automate build, test, and deploy with GitHub Actions, CodeBuild, and CodeDeploy.",
                 technologies: ["GitHub Actions", "CodeBuild", "CodeDeploy"],
                 tags: ["devops", "intermediate"],
+                status: "ready",
+                quickStart: "bash scenarios/06-cicd-pipeline/setup.sh",
                 links: [
                     { title: "README", url: "https://github.com/baseline0/cloud-patterns/blob/main/scenarios/06-cicd-pipeline/README.md" }
                 ]
@@ -329,6 +441,8 @@
                 description: "Collect metrics, logs, and alarms with CloudWatch. Set up dashboards and alerts for production workloads.",
                 technologies: ["AWS CloudWatch", "SNS", "Alarms"],
                 tags: ["devops", "intermediate"],
+                status: "ready",
+                quickStart: "bash scenarios/07-monitoring/setup.sh",
                 links: [
                     { title: "README", url: "https://github.com/baseline0/cloud-patterns/blob/main/scenarios/07-monitoring/README.md" }
                 ]
@@ -339,6 +453,8 @@
                 description: "Process streaming data with Kinesis, Lambda, and DynamoDB for real-time analytics.",
                 technologies: ["AWS Kinesis", "Lambda", "DynamoDB"],
                 tags: ["intermediate", "advanced"],
+                status: "ready",
+                quickStart: "bash scenarios/08-streaming/setup.sh",
                 links: [
                     { title: "README", url: "https://github.com/baseline0/cloud-patterns/blob/main/scenarios/08-streaming/README.md" }
                 ]
@@ -349,6 +465,8 @@
                 description: "Deploy containerized microservices with ECS or Kubernetes. Service discovery and load balancing included.",
                 technologies: ["AWS ECS", "Kubernetes", "Containers"],
                 tags: ["enterprise", "advanced"],
+                status: "ready",
+                quickStart: "bash scenarios/09-microservices/setup.sh",
                 links: [
                     { title: "README", url: "https://github.com/baseline0/cloud-patterns/blob/main/scenarios/09-microservices/README.md" }
                 ]
@@ -359,11 +477,34 @@
                 description: "Active-active and active-passive failover strategies. Achieve high availability across regions.",
                 technologies: ["Multi-Region", "RTO/RPO", "Failover"],
                 tags: ["enterprise", "advanced"],
+                status: "ready",
+                quickStart: "bash scenarios/10-disaster-recovery/setup.sh",
                 links: [
                     { title: "README", url: "https://github.com/baseline0/cloud-patterns/blob/main/scenarios/10-disaster-recovery/README.md" }
                 ]
             }
         ];
+
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+
+            setTimeout(() => toast.classList.add('show'), 10);
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 2000);
+        }
+
+        function copyCommand(cmd) {
+            navigator.clipboard.writeText(cmd).then(() => {
+                showToast('📋 Command copied!');
+            }).catch(() => {
+                showToast('❌ Failed to copy');
+            });
+        }
 
         function renderScenarios(filter = 'all') {
             const container = document.getElementById('scenarios');
@@ -374,14 +515,26 @@
                     return;
                 }
 
+                const statusIcon = scenario.status === 'deployed' ? '✅' : '📁';
+                const statusClass = scenario.status === 'deployed' ? 'deployed' : 'ready';
+                const statusText = scenario.status === 'deployed' ? 'Deployed' : 'Ready';
+
                 const card = document.createElement('div');
                 card.className = 'scenario-card';
+                card.setAttribute('data-status', scenario.status);
                 card.innerHTML = `
+                    <div class="status-badge ${statusClass}">${statusIcon} ${statusText}</div>
                     <div class="scenario-number">${scenario.number}</div>
                     <h2>${scenario.title}</h2>
                     <p class="scenario-description">${scenario.description}</p>
                     <div class="technologies">
                         ${scenario.technologies.map(tech => `<span class="tech-badge">${tech}</span>`).join('')}
+                    </div>
+                    <div class="quick-start" style="margin: 15px 0; padding: 12px; background: #f3f4f6; border-radius: 6px; display: flex; gap: 10px; align-items: center;">
+                        <code style="flex: 1; font-size: 0.85em; color: #666; word-break: break-all;">${scenario.quickStart}</code>
+                        <button onclick="copyCommand('${scenario.quickStart.replace(/'/g, "\\'")}'" style="flex-shrink: 0; padding: 8px 12px; background: white; border: 1px solid #ddd; border-radius: 4px; cursor: pointer; font-weight: 600; white-space: nowrap;">
+                            📋 Copy
+                        </button>
                     </div>
                     <div class="links">
                         ${scenario.links.map(link => `
