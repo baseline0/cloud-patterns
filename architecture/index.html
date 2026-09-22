@@ -322,10 +322,10 @@
         </div>
 
         <div class="filter-buttons">
-            <button class="filter-btn active" onclick="filterScenarios('all')">All Scenarios</button>
-            <button class="filter-btn" onclick="filterScenarios('serverless')">Serverless</button>
-            <button class="filter-btn" onclick="filterScenarios('enterprise')">Enterprise</button>
-            <button class="filter-btn" onclick="filterScenarios('devops')">DevOps</button>
+            <button class="filter-btn active" onclick="filterScenarios('all')" data-filter="all">All Scenarios</button>
+            <button class="filter-btn" onclick="filterScenarios('serverless')" data-filter="serverless">Serverless</button>
+            <button class="filter-btn" onclick="filterScenarios('enterprise')" data-filter="enterprise">Enterprise</button>
+            <button class="filter-btn" onclick="filterScenarios('devops')" data-filter="devops">DevOps</button>
         </div>
 
         <div class="legend">
@@ -485,6 +485,26 @@
             }
         ];
 
+        function updateFilterCounts() {
+            const counts = {
+                all: scenarios.length,
+                serverless: 0,
+                enterprise: 0,
+                devops: 0
+            };
+
+            scenarios.forEach(scenario => {
+                if (scenario.tags.includes('serverless')) counts.serverless++;
+                if (scenario.tags.includes('enterprise')) counts.enterprise++;
+                if (scenario.tags.includes('devops')) counts.devops++;
+            });
+
+            document.querySelector('[data-filter="all"]').textContent = `All Scenarios (${counts.all})`;
+            document.querySelector('[data-filter="serverless"]').textContent = `Serverless (${counts.serverless})`;
+            document.querySelector('[data-filter="enterprise"]').textContent = `Enterprise (${counts.enterprise})`;
+            document.querySelector('[data-filter="devops"]').textContent = `DevOps (${counts.devops})`;
+        }
+
         function showToast(message) {
             const toast = document.createElement('div');
             toast.className = 'toast';
@@ -556,6 +576,7 @@
 
         // Initial render
         renderScenarios();
+        updateFilterCounts();
     </script>
 </body>
 </html>
