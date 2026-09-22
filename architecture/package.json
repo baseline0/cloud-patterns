@@ -6,9 +6,11 @@
   "scripts": {
     "dev": "likec4 start",
     "build": "likec4 build --output dist",
-    "preview": "likec4 preview"
+    "preview": "likec4 preview",
+    "deploy": "gh-pages -d ."
   },
   "devDependencies": {
-    "@likec4/cli": "latest"
+    "@likec4/cli": "latest",
+    "gh-pages": "^6.3.0"
   }
 }
