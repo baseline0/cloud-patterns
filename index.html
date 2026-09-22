@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloud Design Patterns - Interactive Architecture</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 50px;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        header p {
+            font-size: 1.1em;
+            opacity: 0.95;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .scenarios-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 50px;
+        }
+
+        .scenario-card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+
+        .scenario-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .scenario-number {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .scenario-card h2 {
+            font-size: 1.3em;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .scenario-description {
+            color: #666;
+            font-size: 0.95em;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .technologies {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .tech-badge {
+            background: #f0f2f5;
+            color: #667eea;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 500;
+        }
+
+        .links {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .link-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            background: #f0f2f5;
+            color: #667eea;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 0.85em;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            border: 1px solid #e0e0e0;
+        }
+
+        .link-btn:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+            justify-content: center;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid white;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn.active {
+            background: white;
+            color: #667eea;
+            border-color: white;
+        }
+
+        .filter-btn:hover {
+            background: white;
+            color: #667eea;
+        }
+
+        .stats {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .stat {
+            padding: 15px;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            color: #999;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .footer a {
+            color: white;
+            text-decoration: underline;
+            margin: 0 10px;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🗺️ Cloud Design Patterns</h1>
+            <p>Interactive architecture diagrams linked to Terraform implementations. Learn vendor-agnostic patterns through hands-on scenarios.</p>
+        </header>
+
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-number">10</div>
+                <div class="stat-label">Scenarios</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">3</div>
+                <div class="stat-label">Cloud Providers</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">100%</div>
+                <div class="stat-label">Vendor-Agnostic</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">Free</div>
+                <div class="stat-label">to Learn</div>
+            </div>
+        </div>
+
+        <div class="filter-buttons">
+            <button class="filter-btn active" onclick="filterScenarios('all')">All Scenarios</button>
+            <button class="filter-btn" onclick="filterScenarios('serverless')">Serverless</button>
+            <button class="filter-btn" onclick="filterScenarios('enterprise')">Enterprise</button>
+            <button class="filter-btn" onclick="filterScenarios('devops')">DevOps</button>
+        </div>
+
+        <div class="scenarios-grid" id="scenarios">
+            <!-- Scenarios will be generated here -->
+        </div>
+
+        <footer class="footer">
+            <p>
+                <a href="https://github.com/baseline0/cloud-patterns">GitHub Repository</a> •
+                <a href="https://github.com/baseline0/cloud-patterns/blob/main/LEARNING.md">Learning Path</a> •
+                <a href="https://github.com/baseline0/cloud-patterns/blob/main/CONTRIBUTING.md">Contributing</a>
+            </p>
+            <p style="margin-top: 20px; font-size: 0.9em;">Built with LikeC4 • Architecture as Code • Interactive Diagrams</p>
+        </footer>
+    </div>
+
+    <script>
+        const scenarios = [
+            {
+                number: 1,
+                title: "Static Website Hosting",
+                description: "Host static websites on S3 with CloudFront CDN for global distribution.",
+                technologies: ["AWS S3", "CloudFront", "Static Content"],
+                tags: ["serverless", "basic"],
+                links: [
+                    { title: "Terraform", url: "https://github.com/baseline0/cloud-patterns/blob/main/scenarios/01-static-website/terraform/main.tf" },
+                    { title: "README", url: "https://github.com/baseline0/cloud-patterns/blob/main/scenarios/01-static-website/README.md" }
+                ]
+            },
+            {
+                number: 2,
+                title: "Serverless API",
+                description: "Build REST APIs with Lambda and API Gateway. Scales automatically with traffic.",
+                technologies: ["AWS Lambda", "API Gateway", "REST API"],
+                tags: ["serverless", "basic"],
+                links: [
+                    { title: "Terraform", url: "https://github.com/baseline0/cloud-patterns/blob/main/scenarios/02-serverless-api/terraform/main.tf" },
+                    { title: "README", url: "https://github.com/baseline0/cloud-patterns/blob/main/scenarios/02-serverless-api/README.md" }
+                ]
+            },
+            {
+                number: 3,
+                title: "Event-Driven Architecture",
+                description: "React to events with S3, SNS, and Lambda. Decouple components using pub/sub messaging.",
+                technologies: ["AWS S3", "SNS", "Lambda"],
+                tags: ["serverless", "intermediate"],
+                links: [
+                    { title: "Terraform", url: "https://github.com/baseline0/cloud-patterns/blob/main/scenarios/03-event-driven/terraform/main.tf" },
+                    { title: "README", url: "https://github.com/baseline0/cloud-patterns/blob/main/scenarios/03-event-driven/README.md" }
+                ]
+            },
+            {
+                number: 4,
+                title: "Database + CRUD API",
+                description: "Combine DynamoDB, Lambda, and API Gateway for a complete data API with create, read, update, delete operations.",
+                technologies: ["AWS DynamoDB", "Lambda", "API Gateway"],
+                tags: ["serverless", "intermediate"],
+                links: [
+                    { title: "Terraform", url: "https://github.com/baseline0/cloud-patterns/blob/main/scenarios/04-crud-api/terraform/main.tf" },
+                    { title: "README", url: "https://github.com/baseline0/cloud-patterns/blob/main/scenarios/04-crud-api/README.md" }
+                ]
+            },
+            {
+                number: 5,
+                title: "3-Tier Web Application",
+                description: "Classic three-tier architecture with load balancer, application servers, and relational database.",
+                technologies: ["AWS ALB", "EC2", "RDS"],
+                tags: ["enterprise", "intermediate"],
+                links: [
+                    { title: "Terraform", url: "https://github.com/baseline0/cloud-patterns/blob/main/scenarios/05-3tier-web/terraform/main.tf" },
+                    { title: "README", url: "https://github.com/baseline0/cloud-patterns/blob/main/scenarios/05-3tier-web/README.md" }
+                ]
+            },
+            {
+                number: 6,
+                title: "CI/CD Pipeline",
+                description: "Automate build, test, and deploy with GitHub Actions, CodeBuild, and CodeDeploy.",
+                technologies: ["GitHub Actions", "CodeBuild", "CodeDeploy"],
+                tags: ["devops", "intermediate"],
+                links: [
+                    { title: "README", url: "https://github.com/baseline0/cloud-patterns/blob/main/scenarios/06-cicd-pipeline/README.md" }
+                ]
+            },
+            {
+                number: 7,
+                title: "Monitoring & Observability",
+                description: "Collect metrics, logs, and alarms with CloudWatch. Set up dashboards and alerts for production workloads.",
+                technologies: ["AWS CloudWatch", "SNS", "Alarms"],
+                tags: ["devops", "intermediate"],
+                links: [
+                    { title: "README", url: "https://github.com/baseline0/cloud-patterns/blob/main/scenarios/07-monitoring/README.md" }
+                ]
+            },
+            {
+                number: 8,
+                title: "Real-Time Data Streaming",
+                description: "Process streaming data with Kinesis, Lambda, and DynamoDB for real-time analytics.",
+                technologies: ["AWS Kinesis", "Lambda", "DynamoDB"],
+                tags: ["intermediate", "advanced"],
+                links: [
+                    { title: "README", url: "https://github.com/baseline0/cloud-patterns/blob/main/scenarios/08-streaming/README.md" }
+                ]
+            },
+            {
+                number: 9,
+                title: "Microservices Architecture",
+                description: "Deploy containerized microservices with ECS or Kubernetes. Service discovery and load balancing included.",
+                technologies: ["AWS ECS", "Kubernetes", "Containers"],
+                tags: ["enterprise", "advanced"],
+                links: [
+                    { title: "README", url: "https://github.com/baseline0/cloud-patterns/blob/main/scenarios/09-microservices/README.md" }
+                ]
+            },
+            {
+                number: 10,
+                title: "Multi-Region Disaster Recovery",
+                description: "Active-active and active-passive failover strategies. Achieve high availability across regions.",
+                technologies: ["Multi-Region", "RTO/RPO", "Failover"],
+                tags: ["enterprise", "advanced"],
+                links: [
+                    { title: "README", url: "https://github.com/baseline0/cloud-patterns/blob/main/scenarios/10-disaster-recovery/README.md" }
+                ]
+            }
+        ];
+
+        function renderScenarios(filter = 'all') {
+            const container = document.getElementById('scenarios');
+            container.innerHTML = '';
+
+            scenarios.forEach(scenario => {
+                if (filter !== 'all' && !scenario.tags.includes(filter)) {
+                    return;
+                }
+
+                const card = document.createElement('div');
+                card.className = 'scenario-card';
+                card.innerHTML = `
+                    <div class="scenario-number">${scenario.number}</div>
+                    <h2>${scenario.title}</h2>
+                    <p class="scenario-description">${scenario.description}</p>
+                    <div class="technologies">
+                        ${scenario.technologies.map(tech => `<span class="tech-badge">${tech}</span>`).join('')}
+                    </div>
+                    <div class="links">
+                        ${scenario.links.map(link => `
+                            <a href="${link.url}" target="_blank" rel="noopener noreferrer" class="link-btn">
+                                📂 ${link.title}
+                            </a>
+                        `).join('')}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function filterScenarios(tag) {
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            renderScenarios(tag);
+        }
+
+        // Initial render
+        renderScenarios();
+    </script>
+</body>
+</html>

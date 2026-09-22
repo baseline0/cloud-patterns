@@ -1,0 +1,16 @@
+{
+  "name": "cloud-patterns-architecture",
+  "version": "1.0.0",
+  "description": "Interactive C4 diagrams for cloud design patterns",
+  "type": "module",
+  "scripts": {
+    "dev": "likec4 start",
+    "build": "likec4 build --output dist",
+    "preview": "likec4 preview",
+    "deploy": "gh-pages -d ."
+  },
+  "devDependencies": {
+    "@likec4/cli": "latest",
+    "gh-pages": "^6.3.0"
+  }
+}
