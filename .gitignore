@@ -1,0 +1,46 @@
+# Terraform
+.terraform/
+.terraform.lock.hcl
+terraform.tfstate
+terraform.tfstate.*
+crash.log
+*.tfvars
+!*.tfvars.example
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# OS
+Thumbs.db
+.env
+.env.local
+
+# Emulator data
+.floci/
+localstack_data/
+
+# Temporary
+tmp/
+.tmp/
+
+# Build
+dist/
+build/
+
+# Logs
+*.log
+
+# AWS CLI
+.aws/credentials
+.aws/config
+
+# Azure CLI
+.azure/
+
+# GCP
+.gcloud/

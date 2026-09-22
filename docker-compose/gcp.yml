@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  # Floci: GCP emulator
+  # Includes: Cloud Storage, Pub/Sub, Firestore, Cloud Functions, Datastore
+  # Endpoint: http://localhost:4588
+  gcp:
+    image: floci/floci-gcp:latest
+    container_name: cloud-patterns-gcp
+    ports:
+      - "4588:4588"  # Main API endpoint
+    environment:
+      # Emulator configuration
+      DEBUG: 0
+      DOCKER_HOST: unix:///var/run/docker.sock
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - cloud-patterns
+
+networks:
+  cloud-patterns:
+    driver: bridge
