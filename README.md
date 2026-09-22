@@ -4,6 +4,17 @@
 
 This repository teaches **cloud design patterns** (not provider features) using local emulators, infrastructure-as-code, and real-world scenarios. Learn once, apply anywhere (AWS, Azure, GCP, or any provider).
 
+## 🗺️ Interactive Architecture Diagrams
+
+Explore all 10 scenarios visually with clickable links to implementations:
+
+👉 **[View Interactive Diagrams](architecture/index.html)** (LikeC4 C4 model)
+
+Each diagram links directly to:
+- 📂 Terraform infrastructure code (AWS/Azure/GCP)
+- 📖 Scenario README documentation
+- 🏃 Local setup scripts
+
 ## 🎯 Philosophy
 
 - **Vendor-agnostic**: Patterns first, provider details second
