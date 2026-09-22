@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloud Patterns - Scenario 1: Static Website</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>☁️ Cloud Architecture Patterns</h1>
+            <p class="subtitle">Scenario 1: Static Website Hosting</p>
+        </header>
+
+        <main>
+            <section class="hero">
+                <h2>Welcome to Your S3 Website!</h2>
+                <p>This static website is hosted on Amazon S3, served directly from CloudFront (or S3 static hosting).</p>
+            </section>
+
+            <section class="architecture">
+                <h3>Architecture</h3>
+                <pre><code>User → S3 Bucket → index.html, style.css
+                    ↓
+            Public Read Access via Bucket Policy</code></pre>
+            </section>
+
+            <section class="key-concepts">
+                <h3>Key Concepts</h3>
+                <ul>
+                    <li><strong>S3 Bucket:</strong> Cloud object storage (like a distributed hard drive)</li>
+                    <li><strong>Bucket Policy:</strong> JSON-based access control (who can read what)</li>
+                    <li><strong>Static Website Hosting:</strong> S3 serves index.html for / requests</li>
+                    <li><strong>Serverless:</strong> No servers to manage, you only pay for storage</li>
+                    <li><strong>Global Distribution:</strong> Content served from AWS edge locations</li>
+                </ul>
+            </section>
+
+            <section class="next-steps">
+                <h3>Next Steps</h3>
+                <ol>
+                    <li>✅ You've successfully deployed a static website with S3!</li>
+                    <li>📦 Try uploading more files: images, JavaScript, etc.</li>
+                    <li>🔐 Explore bucket policies: how to grant/deny access</li>
+                    <li>📊 Check S3 storage metrics in AWS Console</li>
+                    <li>🚀 Move to Scenario 2: Serverless API (Lambda + API Gateway)</li>
+                </ol>
+            </section>
+
+            <footer>
+                <p>Deployed with Terraform on LocalStack/S3 • Cloud Patterns Learning</p>
+            </footer>
+        </main>
+    </div>
+</body>
+</html>
