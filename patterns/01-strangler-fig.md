@@ -96,6 +96,15 @@ The "big bang" rewrite is risky. **Strangler Fig** lets you gradually replace mo
 - **Technology stack**: API Gateway (Kong, AWS API Gateway, nginx), message queue (RabbitMQ, SQS), monitoring
 - **Scale threshold**: Typically makes sense at 10M+ requests/month or > 100 engineers
 
+### Do NOT Use This Pattern When:
+
+- **Requests cannot be intercepted or routed** — If there's no way to intercept traffic and route some to services and some to monolith, Strangler Fig is impossible.
+- **Source code is not available for modification** — You must be able to modify the monolith to redirect internal calls to new services. If it's a third-party binary or you have no source access, this pattern doesn't work.
+- **The monolith is small enough to replace directly** — If it's < 50k LOC and relatively cohesive, a bounded rewrite may be faster and cheaper than gradual extraction.
+- **Organization cannot fund parallel operation** — If budget won't support running both monolith and services simultaneously for 12–18 months, you'll get stuck halfway.
+- **Leadership demands immediate full decommissioning** — If the requirement is "retire monolith by Q3," the gradual approach will not meet that timeline.
+- **The real problem is organizational, not architectural** — If the blocker is unclear ownership, competing product priorities, or unclear requirements, Strangler Fig won't help. Fix the org problem first.
+
 ### Problem Indicators (Does Your Monolith Have These?)
 
 - [ ] **Deployment frequency < 1x/week** (because risk of monolith changes is high)
@@ -362,48 +371,97 @@ The "big bang" rewrite is risky. **Strangler Fig** lets you gradually replace mo
 
 ## Cost Implications
 
-### Infrastructure Cost (18-month migration)
+**⚠️ Illustrative planning model — not a quote or forecast.**
 
-| Phase | Timeline | Monolith | Services | Total | Change |
-|-------|----------|----------|----------|-------|--------|
-| **Current** | Now | $10k/mo | $0 | $10k/mo | Baseline |
-| **After Phase 1** | Mo 2 | $10k | $2k | $12k | +20% |
-| **After Phase 2** | Mo 6 | $8k | $6k | $14k | +40% (peak overhead) |
-| **After Phase 3** | Mo 12 | $3k | $8k | $11k | +10% |
-| **After Phase 4** | Mo 18 | $1k | $10k | $11k | +10% |
+Actual costs depend heavily on team composition, existing infrastructure maturity, scope, and delivery model. Use the ranges and drivers below to build your own estimate for your context.
 
-**Key drivers:**
-- Dual infrastructure (both running simultaneously)
-- API Gateway, monitoring, logging overhead
-- Database replication (while sharing schema)
-- Messaging infrastructure (for eventual consistency)
+### Assumptions
 
-### Operational Cost
+- **Team size**: 4–6 person delivery team (1 FTE architect, 2–3 engineers, 1 infrastructure, 1 QA)
+- **Baseline**: Existing CI/CD, monitoring, and load-testing infrastructure in place
+- **Scope**: One bounded business domain / application (not entire monolith)
+- **Constraints**: No data-center exit, no regulatory migration, no hard deadline pressure
+- **Blended delivery rate**: $150–200/hour (varies by geography, seniority)
 
-| Category | Effort |
-|----------|--------|
-| **Planning & design** | 4 engineer-weeks |
-| **Infrastructure setup** | 2 engineer-weeks |
-| **Extract first service** | 6 engineer-weeks |
-| **Extract services 2–5** | 4 weeks × 4 services = 16 engineer-weeks |
-| **Operations & runbooks** | 8 engineer-weeks |
-| **Monitoring & tracing** | 6 engineer-weeks |
-| **Team training** | 4 engineer-weeks |
-| **Total** | ~50 engineer-weeks (12 months, 1 FTE) |
+### Infrastructure Cost (Illustrative Model)
 
-### Total 18-Month Cost
+| Phase | Timeline | Monolith | Services | Total | Change | Rationale |
+|-------|----------|----------|----------|-------|--------|-----------|
+| **Current** | Baseline | $8–15k/mo | $0 | $8–15k/mo | — | Depends on scale, region |
+| **Phase 1** | Mo 1–2 | $8–15k | $1–3k | $9–18k | +10–20% | API Gateway + 1 service |
+| **Phase 2** | Mo 3–6 | $6–12k | $4–8k | $10–20k | +20–40% (peak) | Dual infrastructure at max |
+| **Phase 3** | Mo 7–12 | $2–6k | $8–14k | $10–20k | +10–20% | Monolith shrinking |
+| **Phase 4** | Mo 13–18 | $0–2k | $12–18k | $12–20k | +10–20% | Monolith retired |
+
+**Key cost drivers** (can shift ranges significantly):
+- **Region**: EU/APAC 30–50% higher than US
+- **Data transfer**: Inter-service communication, cross-region replication
+- **Database duplication**: How long do both systems share DB? (affects peak cost)
+- **Managed services**: Fully managed (RDS, Aurora, Lambda) vs. self-hosted (EC2, Postgres)
+- **Traffic volume**: 10M req/mo vs. 1B req/mo changes infrastructure 100x
+
+### Delivery Effort
+
+| Category | Low Estimate | Expected | High Estimate | Notes |
+|----------|-------------:|----------:|---------------:|-------|
+| **Planning & design** | 2 wks | 4 wks | 8 wks | If monolith understood; unclear if not |
+| **Infrastructure setup** | 1 wk | 2 wks | 4 wks | API Gateway, monitoring, CI/CD integration |
+| **Extract Service 1** | 4 wks | 6 wks | 12 wks | Proof-of-concept; includes testing, docs |
+| **Extract Services 2–5** | 3 wks each | 4 wks each | 6 wks each | Faster after pattern established |
+| **Data strategy** | 2 wks | 3 wks | 6 wks | Schema separation, eventual consistency |
+| **Operations & runbooks** | 2 wks | 4 wks | 8 wks | Incident response, scaling, failover |
+| **Monitoring & tracing** | 2 wks | 3 wks | 6 wks | Distributed tracing, correlation IDs |
+| **Team training** | 2 wks | 3 wks | 5 wks | Microservices concepts, deployment, incidents |
+| **Total** | **20–22 wks** | **31–33 wks** | **55–60 wks** | Equivalent to 5–15 months with 1 FTE |
+
+### Total 18-Month Program Cost (Illustrative)
+
+Using **expected case** with $160/hour blended rate:
 
 ```
-Infrastructure delta: $14k × 6 months (peak) + $11k × 12 months (reduced) = $216k
-Operations (50 weeks × $150/hour): $600k @ senior engineer rate
-Tools (API Gateway, monitoring, etc.): $20k
-Training: $10k
+Delivery effort (33 weeks × 40 hrs/wk × $160): $211k
+Infrastructure delta:
+  - Months 1–6 peak overhead (+$5–10k/mo): $45k
+  - Months 7–18 (+$2–5k/mo): $36k
+  - Subtotal: $81k
+Tools & licenses (monitoring, API Gateway): $15k
+Training & consulting (if external): $0–30k
 
-Total: ~$850k
+Subtotal: $307–337k (delivery + infrastructure peak)
 
-Annual benefit (velocity, scalability): $500k–2M (depends on organization)
-Payback period: 6–18 months after completion
+Savings post-migration:
+  - Monolith infrastructure (retire after 18mo): -$8–15k/mo × 18 = -$144–270k
+  - Operational efficiency (faster deployments, less on-call): ~$50–100k/year
 ```
+
+**Payback**: 12–24 months after full migration, assuming:
+- Realized velocity improvement (deployment frequency 2x)
+- Reduced on-call burden (team retention)
+- Faster feature delivery (time-to-market)
+
+### Sensitivity Analysis
+
+**What could double the cost?**
+- Tight coupling in monolith (data extraction takes 2x effort)
+- Unclear ownership of features (investigation overhead)
+- Shared database not changeable (creates consistency bottleneck)
+- Organization changes mid-program (re-planning, scope creep)
+
+**What could halve the cost?**
+- Very clean monolith (clear module boundaries)
+- Experienced team (not learning microservices patterns)
+- Scope limited to 1–2 high-value services (not full migration)
+- Existing API Gateway in place (reduce setup)
+
+---
+
+### Decision Framework
+
+**Use this cost model to ask:**
+- Does the expected benefit (velocity, scalability, retention) exceed the program cost for our organization?
+- Do we have team stability to sustain 18-month delivery?
+- Can we tolerate 12–18 months before ROI?
+- Is the business case strong enough to protect budget and people?
 
 ---
 
@@ -441,6 +499,62 @@ Payback period: 6–18 months after completion
    - Symptoms: All requests slow; latency increases globally
    - Recovery: Scale API Gateway horizontally; load balance
    - Runbook: [API Gateway scaling]
+
+---
+
+## Evidence to Collect (During Discovery)
+
+### What System Evidence Would Justify This Pattern?
+
+- **Deployment frequency**: How often can you currently deploy? (goal: 2–5x/week via services)
+- **Incident mean time to recovery (MTTR)**: Current MTTR for monolith bugs vs. target for services
+- **Time-to-feature**: How long from PR to production? (goal: reduce from weeks to days)
+- **Feature coupling data**: How many components must change for a single feature?
+- **Database contention**: Are database locks/deadlocks causing incidents?
+- **On-call burden**: How many pages/week? Target reduction with circuit-breaker isolation?
+
+### What Would Invalidate This Pattern?
+
+- Small monolith (< 50k LOC) — Replace, don't extract
+- No API request entry point — Can't intercept and route
+- Lack of budget — Can't afford 12–18 months of dual infrastructure
+- Organizational blockers — Unclear ownership, competing priorities
+
+---
+
+## Decision Threshold
+
+**Fund a Pilot if:**
+
+- [ ] Monolith > 100k LOC with > 5 loosely-coupled domains
+- [ ] Deployment blocked by risk (one bug can crash whole system)
+- [ ] On-call burden > 10 pages/week OR MTTR > 1 hour
+- [ ] Team has distributed systems experience (or budget for training)
+- [ ] Budget approved for 12–18 month dual-infrastructure period
+- [ ] First extraction candidate identified (low-coupling, high-change-velocity feature)
+
+**Do NOT fund if:**
+
+- Any "Do NOT Use" condition above is true
+- Monolith is < 50k LOC (recommend bounded rewrite instead)
+- Organization cannot commit 12+ months
+- Team lacks distributed systems experience AND cannot hire/train
+
+---
+
+## First 30 Days (Pilot Design)
+
+**Objective**: Extract one service; prove operability; learn cost reality.
+
+**Owner**: Lead architect + 1 engineer (part-time)
+
+**Scope**: One extraction candidate (e.g., user authentication, reporting, payment service)
+
+**Metric**: Service A handling 10–20% of traffic; latency < 100ms (including API Gateway hop)
+
+**Stop Condition**: Circuit opens or latency > 500ms for > 1 minute → rollback to 100% monolith
+
+**Rollback Plan**: API Gateway routes 100% to monolith; Service A stops; verify monolith handles full load
 
 ---
 
