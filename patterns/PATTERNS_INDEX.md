@@ -206,6 +206,30 @@ Each pattern file includes:
 
 ---
 
+## Status: What's Done vs. Planned
+
+### ✅ Complete (Fully Detailed)
+- **01-strangler-fig.md** — Monolith-to-microservices; 5-phase roadmap; cost ranges + assumptions
+- **08-circuit-breaker.md** — Cascading failure prevention; tuning guidance; failure scenarios
+
+### ✅ Decision Cards (1–2 Pages; Ready to Use)
+- **02-multi-tenant.md** — Isolation models; noisy neighbor risks; pilot design
+- **05-event-sourcing.md** — Audit trail trap; temporal queries; schema evolution cost
+- **09-database-replication-sharding.md** — Read vs. write scaling; shard key criticality
+
+### ⏳ Planned (1-Page Index Entries)
+- **03-hybrid-cloud.md** — On-prem + cloud; connectivity, latency, cost
+- **04-service-mesh.md** — Observability, traffic management, complexity tradeoff
+- **06-data-lake.md** — Centralized analytics; governance, consistency, cost
+- **07-saga-pattern.md** — Distributed transactions; compensation logic, complexity
+- **10-cache-aside.md** — Read caching; invalidation, stale data, cost
+- **11-api-gateway.md** — Central entry point; rate limiting, auth, cost
+- **12-cost-optimization.md** — Reserved instances, spot, commitment models
+
+**Principle**: Deep patterns (full decision framework) only when validated by actual use in diligence work. Placeholder entries prevent over-committing.
+
+---
+
 ## Contributing New Patterns
 
 To add a pattern:
