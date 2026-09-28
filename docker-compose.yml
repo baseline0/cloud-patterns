@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  # Nginx reverse proxy (layer-0 infrastructure)
+  gateway:
+    image: nginx:alpine
+    ports:
+      - "8080:80"
+    volumes:
+      # Layer 0: shared nginx config (read-only)
+      - ../infrastructure/nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+
+      # Layer 1: static pattern catalogue (read-only)
+      - .:/usr/share/nginx/html/patterns:ro
+
+    depends_on:
+      - api
+
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/healthz"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+    networks:
+      - patterns
+
+  # API service (uvicorn backend)
+  # Adapt to match your existing setup
+  api:
+    image: python:3.11-slim
+    working_dir: /app
+    # Replace with your actual API build command
+    command: python -m http.server 8080
+    expose:
+      - "8080"
+    networks:
+      - patterns
+
+networks:
+  patterns:
+    driver: bridge

@@ -1,0 +1,142 @@
+<svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .actor { fill: #e3f2fd; stroke: #1976d2; stroke-width: 2; }
+      .boundary { fill: #e3f2fd; stroke: #1976d2; stroke-width: 2; }
+      .new-sys { fill: #e8f5e9; stroke: #388e3c; stroke-width: 2; }
+      .legacy-sys { fill: #fff3e0; stroke: #f57c00; stroke-width: 2; }
+      .data { fill: #f3e5f5; stroke: #7b1fa2; stroke-width: 2; }
+      .data-bridge { fill: #fff3e0; stroke: #f57c00; stroke-width: 2; }
+      .observability { fill: #f5f5f5; stroke: #616161; stroke-width: 2; }
+      .arrow { stroke: #374151; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+      .label { font-family: system-ui, sans-serif; font-size: 13px; fill: #1f2937; font-weight: 500; }
+      .sublabel { font-family: system-ui, sans-serif; font-size: 11px; fill: #6b7280; }
+      .decision-label { font-family: system-ui, sans-serif; font-size: 12px; fill: #1f2937; font-weight: bold; background: white; }
+      .title { font-family: system-ui, sans-serif; font-size: 16px; font-weight: bold; fill: #1f2937; }
+      .section-title { font-family: system-ui, sans-serif; font-size: 12px; font-weight: bold; fill: #374151; }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="#374151" />
+    </marker>
+  </defs>
+
+  <!-- Title -->
+  <text x="600" y="30" class="title" text-anchor="middle">Strangler Fig: Incremental Legacy Modernization</text>
+
+  <!-- Client/User -->
+  <rect x="50" y="100" width="120" height="60" rx="4" class="actor"/>
+  <text x="110" y="130" class="label" text-anchor="middle">Client/User</text>
+  <text x="110" y="150" class="sublabel" text-anchor="middle">Application</text>
+
+  <!-- Routing Facade -->
+  <rect x="280" y="80" width="140" height="100" rx="4" class="boundary"/>
+  <text x="350" y="115" class="label" text-anchor="middle">Routing Facade</text>
+  <text x="350" y="135" class="sublabel" text-anchor="middle">Feature Flags</text>
+  <text x="350" y="155" class="sublabel" text-anchor="middle">User Cohorts</text>
+
+  <!-- Request arrow -->
+  <path d="M 170 130 L 280 130" class="arrow"/>
+  <text x="225" y="120" class="sublabel" text-anchor="middle">request</text>
+
+  <!-- Decision logic -->
+  <circle cx="350" cy="230" r="15" fill="none" stroke="#374151" stroke-width="2"/>
+  <text x="350" y="236" class="label" text-anchor="middle" font-size="20">?</text>
+
+  <!-- NEW SYSTEM PATH -->
+  <!-- Arrow to new system -->
+  <path d="M 280 200 L 180 350" class="arrow" stroke="#388e3c"/>
+  <text x="215" y="280" class="sublabel" text-anchor="middle" fill="#388e3c">new feature</text>
+
+  <!-- New System -->
+  <rect x="80" y="340" width="140" height="80" rx="4" class="new-sys"/>
+  <text x="150" y="370" class="label" text-anchor="middle">New System</text>
+  <text x="150" y="390" class="sublabel" text-anchor="middle">(Capability X)</text>
+  <text x="150" y="405" class="sublabel" text-anchor="middle">v2 implementation</text>
+
+  <!-- New Data Store -->
+  <rect x="80" y="480" width="140" height="70" rx="4" class="data"/>
+  <text x="150" y="510" class="label" text-anchor="middle">New Data Store</text>
+  <text x="150" y="530" class="sublabel" text-anchor="middle">PostgreSQL / Cloud DB</text>
+
+  <!-- New System to Data Store -->
+  <path d="M 150 420 L 150 480" class="arrow" stroke="#7b1fa2"/>
+  <text x="170" y="455" class="sublabel" text-anchor="start">reads/writes</text>
+
+  <!-- LEGACY SYSTEM PATH -->
+  <!-- Arrow to legacy system -->
+  <path d="M 420 200 L 520 350" class="arrow" stroke="#f57c00"/>
+  <text x="485" y="280" class="sublabel" text-anchor="middle" fill="#f57c00">unmigrated</text>
+
+  <!-- Legacy System -->
+  <rect x="420" y="340" width="140" height="80" rx="4" class="legacy-sys"/>
+  <text x="490" y="370" class="label" text-anchor="middle">Legacy System</text>
+  <text x="490" y="390" class="sublabel" text-anchor="middle">(Monolith)</text>
+  <text x="490" y="405" class="sublabel" text-anchor="middle">v1 production</text>
+
+  <!-- Legacy Data Store -->
+  <rect x="420" y="480" width="140" height="70" rx="4" class="data"/>
+  <text x="490" y="510" class="label" text-anchor="middle">Legacy Data Store</text>
+  <text x="490" y="530" class="sublabel" text-anchor="middle">Oracle / On-Prem DB</text>
+
+  <!-- Legacy System to Data Store -->
+  <path d="M 490 420 L 490 480" class="arrow" stroke="#7b1fa2"/>
+  <text x="510" y="455" class="sublabel" text-anchor="start">reads/writes</text>
+
+  <!-- DATA BRIDGE -->
+  <!-- Data Bridge box -->
+  <rect x="280" y="480" width="120" height="70" rx="4" class="data-bridge"/>
+  <text x="340" y="510" class="label" text-anchor="middle">Data Bridge</text>
+  <text x="340" y="530" class="sublabel" text-anchor="middle">Reconciliation</text>
+
+  <!-- Data Bridge connections -->
+  <path d="M 220 510 L 280 510" class="arrow" stroke="#f57c00"/>
+  <path d="M 400 510 L 420 510" class="arrow" stroke="#f57c00"/>
+  <text x="250" y="500" class="sublabel" text-anchor="middle">sync</text>
+  <text x="410" y="500" class="sublabel" text-anchor="middle">sync</text>
+
+  <!-- KEY DECISIONS BOX -->
+  <rect x="700" y="100" width="480" height="250" fill="#fffbeb" stroke="#b45309" stroke-width="1" stroke-dasharray="4" rx="4"/>
+  <text x="940" y="125" class="section-title" text-anchor="middle">Key Decisions</text>
+
+  <g font-family="system-ui, sans-serif" font-size="12" fill="#1f2937">
+    <text x="720" y="155">1. Seam Identification: Identify feature boundaries or domains</text>
+    <text x="720" y="175">   that can migrate independently; loose coupling reduces friction</text>
+
+    <text x="720" y="205">2. Feature Flags: Route based on flags, cohorts, or patterns;</text>
+    <text x="720" y="225">   enables A/B testing and fast rollback on issues</text>
+
+    <text x="720" y="255">3. Data Synchronization: Sync state between old/new DBs;</text>
+    <text x="720" y="275">   event streaming or periodic batch reconciliation</text>
+
+    <text x="720" y="305">4. Graceful Fallback: If new system fails, requests revert to</text>
+    <text x="720" y="325">   legacy; no data loss; safe to experiment</text>
+  </g>
+
+  <!-- MONITORING & FEEDBACK LOOP -->
+  <!-- Monitoring box -->
+  <rect x="700" y="420" width="480" height="100" rx="4" class="observability"/>
+  <text x="940" y="450" class="label" text-anchor="middle">Monitoring & Feature Flags</text>
+  <text x="940" y="475" class="sublabel" text-anchor="middle">Tracks routing decisions, latency, error rates in both systems</text>
+  <text x="940" y="495" class="sublabel" text-anchor="middle">Alerts on divergence • Controls gradual cutover percentage</text>
+
+  <!-- Feedback loops -->
+  <path d="M 150 420 Q 400 600 700 490" class="arrow" stroke="#616161" stroke-dasharray="4"/>
+  <path d="M 490 420 Q 400 600 700 490" class="arrow" stroke="#616161" stroke-dasharray="4"/>
+  <text x="420" y="630" class="sublabel" text-anchor="middle" fill="#616161">metrics</text>
+
+  <!-- Response path -->
+  <path d="M 280 180 L 170 150" class="arrow" stroke="#6b7280"/>
+  <text x="215" y="160" class="sublabel" text-anchor="middle">response</text>
+
+  <!-- TRADEOFFS BOX -->
+  <rect x="50" y="670" width="1100" height="110" fill="#fef2f2" stroke="#dc2626" stroke-width="1" stroke-dasharray="4" rx="4"/>
+  <text x="600" y="695" class="section-title" text-anchor="middle">Tradeoffs</text>
+
+  <g font-family="system-ui, sans-serif" font-size="11" fill="#1f2937">
+    <text x="70" y="720"><tspan font-weight="bold">Benefit:</tspan> Risk spread across multiple deployments; new system tested independently</text>
+    <text x="70" y="735"><tspan font-weight="bold">Cost:</tspan> Operational complexity: run two systems in parallel for months; data bridge maintenance</text>
+
+    <text x="70" y="755"><tspan font-weight="bold">Benefit:</tspan> Business value delivered incrementally; users gain features while stability maintained</text>
+    <text x="70" y="770"><tspan font-weight="bold">Cost:</tspan> Requires robust routing logic, feature flags, and data synchronization strategy</text>
+  </g>
+</svg>

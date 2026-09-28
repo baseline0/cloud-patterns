@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloud Architecture Patterns</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: #f9fafb;
+            color: #1f2937;
+            line-height: 1.6;
+        }
+
+        header {
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: #111827;
+        }
+
+        .subtitle {
+            color: #6b7280;
+            font-size: 1.1rem;
+        }
+
+        .patterns-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .pattern-card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .pattern-card:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .pattern-card h2 {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+            color: #1f2937;
+        }
+
+        .pattern-card p {
+            color: #6b7280;
+            margin-bottom: 1rem;
+            flex-grow: 1;
+        }
+
+        .pattern-status {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .pattern-status.implemented {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .concerns {
+            margin-top: 1rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .concern {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            background: #f3f4f6;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            color: #374151;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: #6b7280;
+        }
+
+        .error {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 2rem 0;
+            border: 1px solid #fecaca;
+        }
+
+        footer {
+            background: white;
+            border-top: 1px solid #e5e7eb;
+            padding: 2rem;
+            margin-top: 3rem;
+            text-align: center;
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Cloud Architecture Patterns</h1>
+            <p class="subtitle">Vendor-neutral patterns for distributed systems</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <div id="content">
+            <div class="loading">Loading patterns...</div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>© 2026 Cloud Architecture Patterns. Informed by industry references, grounded in implementation experience.</p>
+        </div>
+    </footer>
+
+    <script type="module">
+        async function loadPatterns() {
+            try {
+                const response = await fetch('./data/patterns.json');
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const data = await response.json();
+                renderPatterns(data.patterns);
+            } catch (error) {
+                document.getElementById('content').innerHTML = `
+                    <div class="error">
+                        <strong>Error loading patterns:</strong> ${error.message}
+                    </div>
+                `;
+                console.error('Failed to load patterns:', error);
+            }
+        }
+
+        function renderPatterns(patterns) {
+            const grid = document.createElement('div');
+            grid.className = 'patterns-grid';
+
+            patterns.forEach(pattern => {
+                const card = document.createElement('a');
+                card.className = 'pattern-card';
+                card.href = `./pattern.html?id=${encodeURIComponent(pattern.id)}`;
+                card.style.cursor = 'pointer';
+
+                const concerns = pattern.concerns.map(c =>
+                    `<span class="concern">${c}</span>`
+                ).join('');
+
+                card.innerHTML = `
+                    <h2>${pattern.title}</h2>
+                    <p>${pattern.problem}</p>
+                    <div>
+                        <span class="pattern-status implemented">${pattern.status}</span>
+                        <div class="concerns">${concerns}</div>
+                    </div>
+                `;
+
+                grid.appendChild(card);
+            });
+
+            document.getElementById('content').innerHTML = '';
+            document.getElementById('content').appendChild(grid);
+        }
+
+        loadPatterns();
+    </script>
+</body>
+</html>

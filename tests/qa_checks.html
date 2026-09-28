@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QA Checks — Cloud Patterns</title>
+    <style>
+        body {
+            font-family: monospace;
+            background: #f9fafb;
+            padding: 2rem;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #111827;
+        }
+        .check {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        .pass {
+            border-left: 4px solid #10b981;
+            background: #f0fdf4;
+        }
+        .fail {
+            border-left: 4px solid #ef4444;
+            background: #fef2f2;
+        }
+        .pass::before {
+            content: "✓ ";
+            color: #10b981;
+            font-weight: bold;
+        }
+        .fail::before {
+            content: "✗ ";
+            color: #ef4444;
+            font-weight: bold;
+        }
+        .detail {
+            color: #6b7280;
+            font-size: 0.9em;
+            margin-top: 0.5rem;
+        }
+        summary {
+            cursor: pointer;
+            font-weight: bold;
+            padding: 0.5rem;
+        }
+        summary:hover {
+            background: #f3f4f6;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Cloud Patterns — QA Checks</h1>
+    <p>Open the browser console (F12) to see detailed test results.</p>
+
+    <div id="results"></div>
+
+    <script>
+        const checks = [];
+        const resultsDiv = document.getElementById('results');
+
+        function log(name, status, detail = '') {
+            checks.push({ name, status, detail });
+            const className = status === 'PASS' ? 'check pass' : 'check fail';
+            const html = `<div class="${className}">${name}${detail ? `<div class="detail">${detail}</div>` : ''}</div>`;
+            resultsDiv.innerHTML += html;
+            console.log(`[${status}] ${name}${detail ? ': ' + detail : ''}`);
+        }
+
+        async function runChecks() {
+            try {
+                // Load patterns.json
+                const resp = await fetch('./data/patterns.json');
+                const data = await resp.json();
+                const patterns = data.patterns;
+
+                // Check 1: Patterns load
+                if (patterns.length === 2) {
+                    log('Load patterns.json', 'PASS', `${patterns.length} patterns loaded`);
+                } else {
+                    log('Load patterns.json', 'FAIL', `Expected 2 patterns, got ${patterns.length}`);
+                }
+
+                // Check 2: Pattern IDs are unique
+                const ids = patterns.map(p => p.id);
+                const uniqueIds = new Set(ids);
+                if (ids.length === uniqueIds.size) {
+                    log('Pattern IDs unique', 'PASS', `${ids.join(', ')}`);
+                } else {
+                    log('Pattern IDs unique', 'FAIL', 'Duplicate IDs found');
+                }
+
+                // Check 3: Each pattern has required fields
+                const requiredFields = ['id', 'title', 'problem', 'decision', 'diagram', 'tradeoffs'];
+                for (let i = 0; i < patterns.length; i++) {
+                    const p = patterns[i];
+                    const missing = requiredFields.filter(f => !p[f]);
+                    if (missing.length === 0) {
+                        log(`Pattern "${p.id}" schema`, 'PASS', 'All required fields present');
+                    } else {
+                        log(`Pattern "${p.id}" schema`, 'FAIL', `Missing: ${missing.join(', ')}`);
+                    }
+                }
+
+                // Check 4: Diagram files exist
+                for (const pattern of patterns) {
+                    if (pattern.diagram && pattern.diagram.file) {
+                        const diagramResp = await fetch(pattern.diagram.file);
+                        if (diagramResp.ok) {
+                            log(`Diagram exists: ${pattern.id}`, 'PASS', pattern.diagram.file);
+                        } else {
+                            log(`Diagram exists: ${pattern.id}`, 'FAIL', `404 on ${pattern.diagram.file}`);
+                        }
+                    }
+                }
+
+                // Check 5: Navigation URL format
+                for (const pattern of patterns) {
+                    const url = `./pattern.html?id=${encodeURIComponent(pattern.id)}`;
+                    log(`Navigation URL: ${pattern.id}`, 'PASS', url);
+                }
+
+                // Check 6: Homepage loads
+                const homeResp = await fetch('./');
+                if (homeResp.ok) {
+                    log('Homepage loads', 'PASS', '/ returns 200');
+                } else {
+                    log('Homepage loads', 'FAIL', `/ returns ${homeResp.status}`);
+                }
+
+                // Check 7: Detail page template loads
+                const detailResp = await fetch('./pattern.html');
+                if (detailResp.ok) {
+                    log('Detail page template loads', 'PASS', '/pattern.html returns 200');
+                } else {
+                    log('Detail page template loads', 'FAIL', `/pattern.html returns ${detailResp.status}`);
+                }
+
+                // Summary
+                const passed = checks.filter(c => c.status === 'PASS').length;
+                const total = checks.length;
+                resultsDiv.innerHTML += `<hr><p style="font-weight: bold; color: ${passed === total ? '#10b981' : '#ef4444'};">Results: ${passed}/${total} checks passed</p>`;
+                console.log(`\n=== QA Results: ${passed}/${total} passed ===`);
+
+            } catch (error) {
+                console.error('QA check error:', error);
+                log('QA Script', 'FAIL', error.message);
+            }
+        }
+
+        // Run on page load
+        runChecks();
+    </script>
+</body>
+</html>

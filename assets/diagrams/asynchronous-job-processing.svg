@@ -1,0 +1,118 @@
+<svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .box { fill: white; stroke: #333; stroke-width: 2; }
+      .actor { fill: #e3f2fd; stroke: #1976d2; stroke-width: 2; }
+      .boundary { fill: #e3f2fd; stroke: #1976d2; stroke-width: 2; }
+      .messaging { fill: #fff3e0; stroke: #f57c00; stroke-width: 2; }
+      .compute { fill: #e8f5e9; stroke: #388e3c; stroke-width: 2; }
+      .data { fill: #f3e5f5; stroke: #7b1fa2; stroke-width: 2; }
+      .error { fill: #ffebee; stroke: #c62828; stroke-width: 2; }
+      .observability { fill: #f5f5f5; stroke: #616161; stroke-width: 2; }
+      .arrow { stroke: #333; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+      .dashed-arrow { stroke: #999; stroke-width: 2; fill: none; stroke-dasharray: 5,5; marker-end: url(#arrowhead-gray); }
+      .label { font-family: system-ui, sans-serif; font-size: 13px; font-weight: 600; text-anchor: middle; }
+      .sublabel { font-family: system-ui, sans-serif; font-size: 11px; fill: #666; text-anchor: middle; }
+      .note { font-family: system-ui, sans-serif; font-size: 10px; fill: #666; }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="#333"/>
+    </marker>
+    <marker id="arrowhead-gray" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="#999"/>
+    </marker>
+  </defs>
+
+  <!-- Title -->
+  <text x="600" y="35" class="label" style="font-size: 18px;">Asynchronous Job Processing</text>
+  <text x="600" y="55" class="sublabel" style="text-anchor: middle; font-size: 12px; font-weight: normal;">Decouple long-running work from synchronous requests</text>
+
+  <!-- Main flow: Client → API → Queue → Workers → Store -->
+
+  <!-- Client -->
+  <rect x="50" y="120" width="120" height="80" class="actor" rx="4"/>
+  <text x="110" y="160" class="label">Client</text>
+  <text x="110" y="180" class="sublabel">Submit work</text>
+
+  <!-- API Gateway -->
+  <rect x="250" y="120" width="140" height="80" class="boundary" rx="4"/>
+  <text x="320" y="160" class="label">Request API</text>
+  <text x="320" y="180" class="sublabel">Validate, deduplicate</text>
+
+  <!-- Durable Queue -->
+  <rect x="500" y="120" width="140" height="80" class="messaging" rx="4"/>
+  <text x="570" y="160" class="label">Durable Queue</text>
+  <text x="570" y="180" class="sublabel">Persist durably</text>
+
+  <!-- Worker Pool -->
+  <rect x="750" y="120" width="140" height="80" class="compute" rx="4"/>
+  <text x="820" y="160" class="label">Worker Pool</text>
+  <text x="820" y="180" class="sublabel">Execute, retry</text>
+
+  <!-- Status/Result Store -->
+  <rect x="950" y="120" width="140" height="80" class="data" rx="4"/>
+  <text x="1020" y="160" class="label">Status/Result</text>
+  <text x="1020" y="180" class="sublabel">Persist state</text>
+
+  <!-- Main flow arrows -->
+  <path class="arrow" d="M 170 160 L 250 160"/>
+  <text x="210" y="150" class="note">submit</text>
+
+  <path class="arrow" d="M 390 160 L 500 160"/>
+  <text x="445" y="150" class="note">enqueue</text>
+
+  <path class="arrow" d="M 640 160 L 750 160"/>
+  <text x="695" y="150" class="note">claim task</text>
+
+  <path class="arrow" d="M 890 160 L 950 160"/>
+  <text x="920" y="150" class="note">result/status</text>
+
+  <!-- Dead-Letter Queue -->
+  <rect x="750" y="320" width="140" height="80" class="error" rx="4"/>
+  <text x="820" y="360" class="label">Dead-Letter</text>
+  <text x="820" y="380" class="sublabel">Queue</text>
+
+  <path class="dashed-arrow" d="M 820 200 L 820 320"/>
+  <text x="680" y="260" class="note">max retries exceeded</text>
+
+  <!-- Monitoring / Observability -->
+  <rect x="450" y="320" width="180" height="80" class="observability" rx="4"/>
+  <text x="540" y="360" class="label">Monitoring & Alerts</text>
+  <text x="540" y="380" class="sublabel">Queue depth, worker health</text>
+
+  <path class="dashed-arrow" d="M 570 200 L 540 320"/>
+  <text x="480" y="260" class="note">metrics/events</text>
+
+  <!-- Status visibility (feedback to client) -->
+  <path class="dashed-arrow" d="M 950 200 L 320 240"/>
+  <text x="850" y="230" class="note">client polls for status</text>
+
+  <!-- Key Decisions section -->
+  <text x="50" y="500" style="font-family: system-ui; font-size: 14px; font-weight: 600;">Key Architectural Decisions</text>
+
+  <g style="font-family: system-ui; font-size: 12px;">
+    <text x="50" y="530">• <tspan style="font-weight: 600;">Durable Acceptance:</tspan> Work is persisted to queue before API returns; no loss on client disconnect</text>
+
+    <text x="50" y="555">• <tspan style="font-weight: 600;">Idempotency:</tspan> Requests with same ID are deduplicated; safe to retry without duplicate execution</text>
+
+    <text x="50" y="580">• <tspan style="font-weight: 600;">Retry Policy:</tspan> Failed tasks requeued with backoff; max retries before dead-letter queue</text>
+
+    <text x="50" y="605">• <tspan style="font-weight: 600;">Status Visibility:</tspan> Client can poll API for work status, or subscribe to completion webhooks</text>
+
+    <text x="50" y="630">• <tspan style="font-weight: 600;">Backpressure:</tspan> Queue depth monitored; can reject new work if queue is full; alerts if workers lag</text>
+
+    <text x="50" y="655">• <tspan style="font-weight: 600;">Observability:</tspan> Log task lifecycle (submitted, claimed, completed, failed); trace correlation across components</text>
+  </g>
+
+  <!-- Trade-offs section -->
+  <text x="50" y="700" style="font-family: system-ui; font-size: 14px; font-weight: 600;">Trade-offs</text>
+
+  <g style="font-family: system-ui; font-size: 11px;">
+    <text x="50" y="725"><tspan style="font-weight: 600; fill: #2e7d32;">✓ Benefit:</tspan> Decouples producers from workers; workers scale independently</text>
+    <text x="60" y="740"><tspan style="fill: #c62828;">✗ Cost:</tspan> Added operational complexity (queue, workers, monitoring, retry logic)</text>
+
+    <text x="50" y="765"><tspan style="font-weight: 600; fill: #2e7d32;">✓ Benefit:</tspan> Enables retries and durable record of work</text>
+    <text x="60" y="780"><tspan style="fill: #c62828;">✗ Cost:</tspan> Eventual consistency; client cannot immediately verify success</text>
+  </g>
+
+</svg>

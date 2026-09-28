@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloud Architecture Pattern</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: #f9fafb;
+            color: #1f2937;
+            line-height: 1.6;
+        }
+
+        header {
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: #111827;
+        }
+
+        .breadcrumb {
+            color: #6b7280;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .breadcrumb a {
+            color: #3b82f6;
+            text-decoration: none;
+        }
+
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+
+        .meta {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+            align-items: center;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.35rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .badge.implemented {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .concerns {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .concern {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background: #f3f4f6;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            color: #374151;
+        }
+
+        section {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        section h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #111827;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 0.5rem;
+        }
+
+        section h3 {
+            font-size: 1.1rem;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            color: #374151;
+            font-weight: 600;
+        }
+
+        ul, ol {
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        .diagram {
+            width: 100%;
+            max-width: 800px;
+            margin: 1.5rem auto;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            display: block;
+        }
+
+        .tradeoff {
+            background: #f9fafb;
+            border-left: 4px solid #3b82f6;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 4px;
+        }
+
+        .benefit {
+            color: #166534;
+            font-weight: 600;
+        }
+
+        .cost {
+            color: #b45309;
+            font-weight: 600;
+        }
+
+        .component {
+            background: #f3f4f6;
+            border-radius: 6px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid #6b7280;
+        }
+
+        .component strong {
+            display: block;
+            margin-bottom: 0.25rem;
+            color: #111827;
+        }
+
+        .component em {
+            display: block;
+            font-size: 0.9rem;
+            color: #6b7280;
+            margin-bottom: 0.5rem;
+            font-style: normal;
+        }
+
+        .reference {
+            background: #fffbeb;
+            border-left: 4px solid #b45309;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 4px;
+        }
+
+        .reference a {
+            color: #b45309;
+            text-decoration: none;
+        }
+
+        .reference a:hover {
+            text-decoration: underline;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: #6b7280;
+        }
+
+        .error {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 2rem 0;
+            border: 1px solid #fecaca;
+        }
+
+        footer {
+            background: white;
+            border-top: 1px solid #e5e7eb;
+            padding: 2rem;
+            margin-top: 3rem;
+            text-align: center;
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="./">← Back to Patterns</a>
+            </div>
+            <div id="header-content">
+                <div class="loading">Loading pattern...</div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <div id="content">
+            <div class="loading">Loading pattern details...</div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>© 2026 Cloud Architecture Patterns. Informed by industry references, grounded in implementation experience.</p>
+            <p style="margin-top: 1rem; font-size: 0.85rem;">
+                <a id="feedback-link" style="color: #3b82f6; text-decoration: none;">Was this pattern useful? Send feedback</a>
+            </p>
+        </div>
+    </footer>
+
+    <script type="module">
+        async function loadPattern() {
+            try {
+                const params = new URLSearchParams(window.location.search);
+                const patternId = params.get('id');
+
+                if (!patternId) {
+                    document.getElementById('content').innerHTML = '<div class="error">No pattern ID provided</div>';
+                    return;
+                }
+
+                const response = await fetch('./data/patterns.json');
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const data = await response.json();
+
+                const pattern = data.patterns.find(p => p.id === patternId);
+                if (!pattern) {
+                    document.getElementById('content').innerHTML = `<div class="error">Pattern not found: ${patternId}</div>`;
+                    return;
+                }
+
+                document.title = `${pattern.title} - Cloud Architecture Patterns`;
+                renderPattern(pattern);
+            } catch (error) {
+                document.getElementById('content').innerHTML = `<div class="error"><strong>Error:</strong> ${error.message}</div>`;
+                console.error('Failed to load pattern:', error);
+            }
+        }
+
+        function renderPattern(pattern) {
+            const headerHTML = `
+                <h1>${pattern.title}</h1>
+                <div class="meta">
+                    <span class="badge implemented">${pattern.status}</span>
+                    <div class="concerns">
+                        ${pattern.concerns.map(c => `<span class="concern">${c}</span>`).join('')}
+                    </div>
+                </div>
+            `;
+            document.getElementById('header-content').innerHTML = headerHTML;
+
+            const diagramHTML = pattern.diagram ? `
+                <section>
+                    <h2>Architecture Diagram</h2>
+                    <img src="${pattern.diagram.file}" alt="${pattern.diagram.alt}" class="diagram">
+                    <p><strong>Informed by:</strong></p>
+                    <ul>
+                        ${pattern.diagram.informed_by.map(ref => `
+                            <li><strong>${ref.title}</strong> (${ref.publisher}) — <a href="${ref.url}" target="_blank">${ref.relationship.replace('_', ' ')}</a></li>
+                        `).join('')}
+                    </ul>
+                </section>
+            ` : '';
+
+            const useCasesHTML = `
+                <section>
+                    <h2>When to Use This Pattern</h2>
+                    <h3>Use When:</h3>
+                    <ul>
+                        ${pattern.use_when.map(item => `<li>${item}</li>`).join('')}
+                    </ul>
+                    <h3>Avoid When:</h3>
+                    <ul>
+                        ${pattern.avoid_when.map(item => `<li>${item}</li>`).join('')}
+                    </ul>
+                </section>
+            `;
+
+            const tradeoffsHTML = `
+                <section>
+                    <h2>Tradeoffs</h2>
+                    ${pattern.tradeoffs.map((trade, idx) => `
+                        <div class="tradeoff">
+                            <div class="benefit">✓ Benefit:</div>
+                            <p>${trade.benefit}</p>
+                            <div class="cost" style="margin-top: 0.75rem;">✗ Cost:</div>
+                            <p>${trade.cost}</p>
+                        </div>
+                    `).join('')}
+                </section>
+            `;
+
+            const componentsHTML = `
+                <section>
+                    <h2>Architecture Components</h2>
+                    ${pattern.conceptual_components.map(comp => `
+                        <div class="component">
+                            <strong>${comp.label}</strong>
+                            <em>${comp.kind}</em>
+                            <p>${comp.description}</p>
+                        </div>
+                    `).join('')}
+                </section>
+            `;
+
+            const decisionsHTML = `
+                <section>
+                    <h2>Key Design Decisions</h2>
+                    ${pattern.design_decisions.map(decision => `
+                        <h3>${decision.decision}</h3>
+                        <p>${decision.rationale}</p>
+                    `).join('')}
+                </section>
+            `;
+
+            const variationsHTML = pattern.variations && pattern.variations.length > 0 ? `
+                <section>
+                    <h2>Variations & Alternatives</h2>
+                    ${pattern.variations.map(variation => `
+                        <h3>${variation.name}</h3>
+                        <p>${variation.description}</p>
+                    `).join('')}
+                </section>
+            ` : '';
+
+            const readingHTML = pattern.further_reading && pattern.further_reading.length > 0 ? `
+                <section>
+                    <h2>Further Reading</h2>
+                    ${pattern.further_reading.map(ref => `
+                        <div class="reference">
+                            <strong><a href="${ref.url}" target="_blank">${ref.title}</a></strong><br>
+                            <em>${ref.publisher}</em>
+                        </div>
+                    `).join('')}
+                </section>
+            ` : '';
+
+            document.getElementById('content').innerHTML = `
+                <section>
+                    <h2>Problem</h2>
+                    <p>${pattern.problem}</p>
+                </section>
+                <section>
+                    <h2>Decision</h2>
+                    <p>${pattern.decision}</p>
+                </section>
+                ${diagramHTML}
+                ${useCasesHTML}
+                ${componentsHTML}
+                ${decisionsHTML}
+                ${tradeoffsHTML}
+                ${variationsHTML}
+                ${readingHTML}
+            `;
+
+            // Set up feedback link
+            const feedbackLink = document.getElementById('feedback-link');
+            const subject = `Cloud Patterns feedback — ${pattern.title}`;
+            const body = `Pattern: ${pattern.id}\n\nWhat was useful?\n\nWhat was unclear or missing?\n\nWhat decision would this help you make?\n`;
+            feedbackLink.href = `mailto:malexiuk@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        }
+
+        loadPattern();
+    </script>
+</body>
+</html>

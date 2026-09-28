@@ -1,0 +1,417 @@
+{
+  "version": "1.0",
+  "metadata": {
+    "title": "Cloud Architecture Patterns",
+    "description": "Vendor-neutral architecture patterns for modern distributed systems",
+    "author": "Mark Alexiuk",
+    "last_updated": "2026-09-24"
+  },
+  "patterns": [
+    {
+      "id": "asynchronous-job-processing",
+      "title": "Asynchronous Job Processing",
+      "slug": "asynchronous-job-processing",
+      "category": "delivery-and-reliability",
+      "status": "implemented",
+      "concerns": ["reliability", "scalability", "observability"],
+
+      "problem": "A synchronous request invokes work whose duration, failure rate, or throughput cannot safely be handled within the request-response path. Waiting for completion can exhaust client connections, exceed request timeouts, or fail under load spikes.",
+
+      "decision": "Accept the request durably into a queue, return immediately to the client, and process it asynchronously through a worker pool. Expose work status, retry behavior, and failure handling explicitly. The queue acts as a durable buffer and allows workers to scale independently.",
+
+      "use_when": [
+        "Work duration is unpredictable or exceeds request timeouts",
+        "Retries and durable audit trails matter for compliance or reliability",
+        "You need to prioritize work, batch it, or distribute it across multiple workers",
+        "Multiple workers may process the same type of work in parallel",
+        "Decoupling producers from execution improves system resilience"
+      ],
+
+      "avoid_when": [
+        "Immediate synchronous confirmation is non-negotiable (e.g., payment authorization, form validation)",
+        "The operation is simple and always completes in milliseconds",
+        "The operational complexity and cost of queue infrastructure is unjustifiable for the workload",
+        "You have no mechanism to report completion status back to the client"
+      ],
+
+      "tradeoffs": [
+        {
+          "benefit": "Decouples producers from workers; workers scale independently from request rate",
+          "cost": "Operational complexity: queue, worker pool, monitoring, dead-letter handling, idempotency logic"
+        },
+        {
+          "benefit": "Enables retries with backoff, durable record of work, and recovery from transient failures",
+          "cost": "Eventual consistency; client cannot immediately verify success; must poll or use webhooks"
+        },
+        {
+          "benefit": "Graceful degradation under load; queue absorbs spikes and workers process at their own pace",
+          "cost": "Requires idempotency design and duplicate-detection policy to avoid executing the same work twice"
+        },
+        {
+          "benefit": "Visibility into work status, failures, and processing time across the entire pipeline",
+          "cost": "Requires comprehensive logging and monitoring; operational alerts are essential"
+        }
+      ],
+
+      "conceptual_components": [
+        {
+          "id": "client",
+          "label": "Client/User",
+          "kind": "actor",
+          "description": "Application or user initiating work"
+        },
+        {
+          "id": "api",
+          "label": "Request API",
+          "kind": "boundary",
+          "description": "Accepts work requests, validates input, checks for duplicates, enqueues work"
+        },
+        {
+          "id": "queue",
+          "label": "Durable Queue",
+          "kind": "messaging",
+          "description": "Persists work durably; enables workers to pull tasks and guarantees no loss on producer failure"
+        },
+        {
+          "id": "worker",
+          "label": "Worker Pool",
+          "kind": "compute",
+          "description": "Processes tasks; executes business logic, retries on transient failure, reports results"
+        },
+        {
+          "id": "store",
+          "label": "Status/Result Store",
+          "kind": "data",
+          "description": "Persists work completion status and results; allows client to check progress or retrieve output"
+        },
+        {
+          "id": "dlq",
+          "label": "Dead-Letter Queue",
+          "kind": "error-handling",
+          "description": "Captures tasks that have failed after max retries; allows manual inspection and recovery"
+        },
+        {
+          "id": "monitoring",
+          "label": "Monitoring & Alerts",
+          "kind": "observability",
+          "description": "Tracks queue depth, worker health, latency, error rates, and alerts on anomalies"
+        }
+      ],
+
+      "diagram": {
+        "kind": "original_svg",
+        "file": "assets/diagrams/asynchronous-job-processing.svg",
+        "alt": "Client submits work through an API to a durable queue; workers claim tasks, execute them with retries, and update a status store. Failed tasks after max retries move to a dead-letter queue. Monitoring observes queue depth and worker health.",
+        "created_by": "Mark Alexiuk",
+        "created_date": "2026-09-24",
+        "informed_by": [
+          {
+            "title": "Decoupling Application Tiers",
+            "publisher": "AWS",
+            "url": "https://docs.aws.amazon.com/whitepapers/latest/web-application-hosting-best-practices/decoupling-application-tiers.html",
+            "relationship": "conceptual reference"
+          },
+          {
+            "title": "Work Queues",
+            "publisher": "RabbitMQ",
+            "url": "https://www.rabbitmq.com/tutorials/tutorial-two-python.html",
+            "relationship": "implementation reference"
+          }
+        ]
+      },
+
+      "implementation_evidence": [
+        {
+          "name": "fleet-ops async worker framework",
+          "repository": "fleet-ops",
+          "path": "src/workers/",
+          "description": "Task queue abstraction with retry logic, idempotency keys, status tracking, and dead-letter handling"
+        },
+        {
+          "name": "fleet-base audit logger",
+          "repository": "fleet-base",
+          "path": "src/audit_logger.py",
+          "description": "Durable event log for async operations; serves as source of truth for retries and compliance audits"
+        }
+      ],
+
+      "design_decisions": [
+        {
+          "decision": "Durable Acceptance",
+          "rationale": "Work is persisted to queue before API returns to client; guarantees no loss on client disconnect or API failure"
+        },
+        {
+          "decision": "Idempotency",
+          "rationale": "Requests with same ID are deduplicated; safe to retry without duplicate execution; critical for state mutations"
+        },
+        {
+          "decision": "Retry Policy with Backoff",
+          "rationale": "Failed tasks are requeued with exponential backoff; transient failures resolve; max retries prevent infinite loops"
+        },
+        {
+          "decision": "Dead-Letter Queue",
+          "rationale": "Tasks that fail after max retries move to separate queue; allows human inspection, debugging, and manual recovery"
+        },
+        {
+          "decision": "Status Visibility",
+          "rationale": "Client can poll API for work status or subscribe to webhooks; no surprise failures or silent discards"
+        },
+        {
+          "decision": "Backpressure Monitoring",
+          "rationale": "Queue depth monitored; can reject new work if queue exceeds threshold; alerts if workers lag behind producers"
+        },
+        {
+          "decision": "Observability & Tracing",
+          "rationale": "Log task lifecycle (submitted, claimed, executed, completed, failed); trace correlation across components"
+        }
+      ],
+
+      "variations": [
+        {
+          "name": "Push vs. Pull",
+          "description": "Workers pull tasks from queue (simpler, avoids thundering herd) vs. queue pushes to workers (lower latency, harder to backpressure)"
+        },
+        {
+          "name": "Ordering Guarantees",
+          "description": "FIFO (SQS, Redis) preserves order; topic subscriptions (Kafka) allow multiple consumers; best-effort has no guarantee"
+        },
+        {
+          "name": "Acknowledgment Model",
+          "description": "Explicit ack (worker confirms success before task is removed) vs. automatic ack (faster, but risk of loss)"
+        },
+        {
+          "name": "Visibility Timeout",
+          "description": "Task is invisible to other workers for a duration after being claimed; prevents concurrent execution; must extend if work takes longer"
+        }
+      ],
+
+      "related_patterns": [
+        "circuit-breaker",
+        "saga-pattern",
+        "bulkhead-pattern"
+      ],
+
+      "further_reading": [
+        {
+          "title": "Asynchronous Request-Reply Pattern",
+          "publisher": "Microsoft Azure Architecture",
+          "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/async-request-reply"
+        },
+        {
+          "title": "Ensuring idempotency in async systems",
+          "publisher": "Segment Engineering Blog",
+          "url": "https://segment.com/blog/end-to-end-tracing-for-async-systems/"
+        },
+        {
+          "title": "Message Queue Pattern",
+          "publisher": "Fowler, Patterns of Distributed Systems",
+          "url": "https://martinfowler.com/articles/patterns-of-distributed-systems/message-queue.html"
+        }
+      ]
+    },
+    {
+      "id": "strangler-pattern",
+      "title": "Strangler Fig: Incremental Legacy Modernization",
+      "slug": "strangler-pattern",
+      "category": "migration",
+      "status": "implemented",
+      "concerns": ["reliability", "migration", "risk-reduction"],
+
+      "problem": "A legacy system is mission-critical but increasingly costly to maintain, lacks desired features, or blocks adoption of new technologies. A complete rewrite is too risky and blocks business value. You need to modernize incrementally while keeping the system live.",
+
+      "decision": "Build a facade (strangler) that intercepts requests destined for the legacy system. Route specific feature requests to the new system, while others continue through to the legacy implementation. Over time, shift more traffic to the new system as capabilities are proven. The legacy system is gradually 'strangled' until it can be retired entirely.",
+
+      "use_when": [
+        "The legacy system is stable, mission-critical, and cannot be taken offline",
+        "You can identify seams or boundaries—features or flows that can be migrated incrementally",
+        "The new system can coexist with the legacy system for a transition period",
+        "You have the organizational capacity to maintain two systems in parallel",
+        "Risk reduction and business continuity are higher priorities than speed"
+      ],
+
+      "avoid_when": [
+        "The entire system must be replaced simultaneously (regulatory deadline, hardware EOL)",
+        "The legacy system has deeply entangled logic with no clear seams",
+        "Operating two systems in parallel is infeasible (cost, complexity, skill constraints)",
+        "The legacy system is already isolated and easy to replace in one go"
+      ],
+
+      "tradeoffs": [
+        {
+          "benefit": "Risk is spread across multiple deployments; each feature can be tested independently before full cutover",
+          "cost": "Operational complexity increases: need to run, monitor, and debug two systems in parallel for months"
+        },
+        {
+          "benefit": "Business value is delivered incrementally; users gain new capabilities while stability is maintained",
+          "cost": "Seam identification takes careful analysis; poor boundaries create cross-system dependencies and make migration harder"
+        },
+        {
+          "benefit": "Graceful fallback is possible; if the new system fails, traffic reverts to legacy without data loss",
+          "cost": "Requires robust routing/facade logic and data synchronization between systems"
+        },
+        {
+          "benefit": "Team can learn and iterate on new system design while legacy system handles baseline load",
+          "cost": "Legacy system must remain operational; cannot be abandoned immediately even after new system goes live"
+        }
+      ],
+
+      "conceptual_components": [
+        {
+          "id": "client",
+          "label": "Client/User",
+          "kind": "actor",
+          "description": "Application or user making requests"
+        },
+        {
+          "id": "router",
+          "label": "Routing Facade",
+          "kind": "boundary",
+          "description": "Intercepts requests, decides routing based on feature flags, user cohorts, or request patterns"
+        },
+        {
+          "id": "new-system",
+          "label": "New System (Capability X)",
+          "kind": "compute",
+          "description": "Newly built system handling specific features or domains"
+        },
+        {
+          "id": "legacy",
+          "label": "Legacy System",
+          "kind": "compute",
+          "description": "Existing system; continues handling unmigrated features"
+        },
+        {
+          "id": "data-bridge",
+          "label": "Data Bridge / Reconciliation",
+          "kind": "messaging",
+          "description": "Syncs data between new and legacy systems; ensures consistency for cross-system operations"
+        },
+        {
+          "id": "data-new",
+          "label": "New Data Store",
+          "kind": "data",
+          "description": "Database for new system"
+        },
+        {
+          "id": "data-legacy",
+          "label": "Legacy Data Store",
+          "kind": "data",
+          "description": "Database for legacy system"
+        },
+        {
+          "id": "monitoring",
+          "label": "Monitoring & Feature Flags",
+          "kind": "observability",
+          "description": "Tracks routing decisions, error rates, and controls cutover via feature flags"
+        }
+      ],
+
+      "diagram": {
+        "kind": "original_svg",
+        "file": "assets/diagrams/strangler-pattern.svg",
+        "alt": "Client requests route through a facade to either the new system (for enabled features) or legacy system (for everything else). Data bridge synchronizes state. Monitoring tracks routing and failures.",
+        "created_by": "Mark Alexiuk",
+        "created_date": "2026-09-24",
+        "informed_by": [
+          {
+            "title": "Strangler Fig Application",
+            "publisher": "Martin Fowler",
+            "url": "https://martinfowler.com/bliki/StranglerFigApplication.html",
+            "relationship": "conceptual_reference"
+          },
+          {
+            "title": "Strangle Legacy Application",
+            "publisher": "Microsoft Azure Architecture",
+            "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/strangler-fig",
+            "relationship": "implementation_reference"
+          }
+        ]
+      },
+
+      "implementation_evidence": [
+        {
+          "name": "fleet-ops modernization router",
+          "repository": "fleet-ops",
+          "path": "src/routing/facade.py",
+          "description": "Request routing based on feature flags; metrics on legacy vs. new system traffic"
+        },
+        {
+          "name": "fleet-base audit logger",
+          "repository": "fleet-base",
+          "path": "src/audit_logger.py",
+          "description": "Durable event log for cross-system consistency; enables reconciliation and rollback"
+        }
+      ],
+
+      "design_decisions": [
+        {
+          "decision": "Seam Identification",
+          "rationale": "Identify feature boundaries or domain-driven slices that can be migrated independently; loose coupling between seams reduces migration friction"
+        },
+        {
+          "decision": "Feature Flags for Routing",
+          "rationale": "Use flags to control which users/requests go to new system; enables A/B testing and gradual rollout; quick rollback if issues arise"
+        },
+        {
+          "decision": "Data Bridge / Reconciliation",
+          "rationale": "Sync state between old and new databases; ensures consistency if cross-system operations occur; may use event streaming or periodic reconciliation"
+        },
+        {
+          "decision": "Graceful Fallback",
+          "rationale": "If new system fails, requests revert to legacy; no user data loss; enables safe experimentation"
+        },
+        {
+          "decision": "Monitoring & Metrics",
+          "rationale": "Track routing decisions, latency, error rates in both systems; alerts on divergence or new system degradation"
+        },
+        {
+          "decision": "Parallel Operation Window",
+          "rationale": "Plan a sunset date for legacy system; at cutover, retire legacy and data bridge; celebrate migration completion"
+        }
+      ],
+
+      "variations": [
+        {
+          "name": "Routing Strategy",
+          "description": "Route by user cohort (canary, percentage), feature flag, request pattern, or domain; each has different risk/complexity profiles"
+        },
+        {
+          "name": "Data Synchronization",
+          "description": "Real-time event stream (Kafka), periodic batch sync, query-time joins, or read-through cache; affects consistency and latency"
+        },
+        {
+          "name": "Fallback Behavior",
+          "description": "Automatic fallback to legacy on new-system error, explicit user choice, or operator-controlled switch; affects user experience"
+        },
+        {
+          "name": "Scope of Replacement",
+          "description": "Replace one feature (micro), one domain (domain-driven), or one tier (API vs. backend); larger scopes are riskier but faster"
+        }
+      ],
+
+      "related_patterns": [
+        "asynchronous-job-processing",
+        "circuit-breaker",
+        "event-driven-architecture"
+      ],
+
+      "further_reading": [
+        {
+          "title": "How to Strangle a Monolith",
+          "publisher": "Sam Newman, Building Microservices",
+          "url": "https://samnewman.io/books/building_microservices_2nd_edition/"
+        },
+        {
+          "title": "Strangler Pattern in Practice",
+          "publisher": "ThoughtWorks Technology Radar",
+          "url": "https://www.thoughtworks.com/radar"
+        },
+        {
+          "title": "Incremental Migration: An Alternative to Big Rewrites",
+          "publisher": "InfoQ",
+          "url": "https://www.infoq.com"
+        }
+      ]
+    }
+  ]
+}
