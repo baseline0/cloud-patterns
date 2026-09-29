@@ -22,6 +22,7 @@
 - [x] Test browser back/forward controls (not just custom back link)
 - [x] Confirm document-relative URLs work under localhost:8000/
 - [ ] Confirm document-relative URLs work under localhost:8080/patterns/ (deferred to nginx test)
+  - **Re-entry condition:** User-facing nginx routing scenario with acceptance criteria defined and deployment context available
 - [x] Confirm pattern cards have unique, stable URL identifiers
 - [x] Test invalid pattern ID; shows usable error state (not blank page or JS crash)
 
