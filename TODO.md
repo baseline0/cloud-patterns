@@ -1,13 +1,20 @@
-# cloud-patterns: User Testing (Phase B2)
+# cloud-patterns TODO
 
-Two patterns complete (Async Job Processing, Strangler Fig), schema validated, UI functional, feedback mechanism added.
-Phase A (patterns) and B1 (QA) done. Phase B2 user testing is the gate to Circuit Breaker.
+Two patterns complete (Async Job, Strangler Fig). Phase A (patterns) and B1 (QA) done.
 
----
+## Portfolio Phase 2 — User Testing
 
-## Phase B2: User Testing with Three Audiences
+- [ ] Conduct user testing with 3 audiences [TTV: 2h total]
+  - Senior Engineer / Architect
+  - Engineering Manager / Technical Lead
+  - Non-Technical Business Contact
+  - Document feedback in docs/FEEDBACK.md
 
-**Unresolved:** Schedule and conduct 3 user testing sessions; document feedback in `docs/FEEDBACK.md`.
+## Active Work
+
+- [ ] Schedule 3 user testing sessions [TTV: 1h]
+- [ ] Synthesize feedback patterns [TTV: 30m]
+- [ ] Decide on Circuit Breaker pattern (if positive feedback)
 
 **Audiences:**
 1. Senior Engineer / Architect — technical correctness, operational caveats
