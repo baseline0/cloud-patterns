@@ -2,19 +2,24 @@
 
 Two patterns complete (Async Job, Strangler Fig). Phase A (patterns) and B1 (QA) done.
 
-## Portfolio Phase 2 — User Testing
+## Quick Wins
+
+- [ ] Schedule 3 user testing sessions [TTV: 1h]
+
+## Blockers
 
 - [ ] Conduct user testing with 3 audiences [TTV: 2h total]
   - Senior Engineer / Architect
   - Engineering Manager / Technical Lead
   - Non-Technical Business Contact
-  - Document feedback in docs/FEEDBACK.md
-
-## Active Work
-
-- [ ] Schedule 3 user testing sessions [TTV: 1h]
+  - Document feedback in docs/FEEDBACK.md (not yet created)
 - [ ] Synthesize feedback patterns [TTV: 30m]
-- [ ] Decide on Circuit Breaker pattern (if positive feedback)
+
+## Features
+
+- [ ] Decide on Circuit Breaker pattern (if positive feedback). `patterns/08-circuit-breaker.md` exists.
+
+---
 
 **Audiences:**
 1. Senior Engineer / Architect — technical correctness, operational caveats
