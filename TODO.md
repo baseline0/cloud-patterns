@@ -2,11 +2,11 @@
 
 Two patterns complete (Async Job, Strangler Fig). Phase A (patterns) and B1 (QA) done.
 
-## Quick Wins
+## Quick Wins - `quickwin`
 
 - [ ] Schedule 3 user testing sessions [TTV: 1h]
 
-## Blockers
+## Blockers - `blocker`
 
 - [ ] Conduct user testing with 3 audiences [TTV: 2h total]
   - Senior Engineer / Architect
@@ -15,7 +15,7 @@ Two patterns complete (Async Job, Strangler Fig). Phase A (patterns) and B1 (QA)
   - Document feedback in docs/FEEDBACK.md (not yet created)
 - [ ] Synthesize feedback patterns [TTV: 30m]
 
-## Features
+## Features - `feature`
 
 - [ ] Decide on Circuit Breaker pattern (if positive feedback). `patterns/08-circuit-breaker.md` exists.
 
