@@ -6,6 +6,10 @@ Two patterns complete (Async Job, Strangler Fig). Phase A (patterns) and B1 (QA)
 
 - [ ] Schedule 3 user testing sessions [TTV: 1h]
 
+## 🧭 Decisions - `decision`
+
+- [ ] **Decide on the Circuit Breaker pattern** (if positive feedback). `patterns/08-circuit-breaker.md` exists.
+
 ## Blockers - `blocker`
 
 - [ ] Conduct user testing with 3 audiences [TTV: 2h total]
@@ -16,8 +20,6 @@ Two patterns complete (Async Job, Strangler Fig). Phase A (patterns) and B1 (QA)
 - [ ] Synthesize feedback patterns [TTV: 30m]
 
 ## Features - `feature`
-
-- [ ] Decide on Circuit Breaker pattern (if positive feedback). `patterns/08-circuit-breaker.md` exists.
 
 ---
 
