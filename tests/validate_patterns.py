@@ -11,11 +11,13 @@ Prevents regressions by ensuring:
 
 import json
 import sys
-from pathlib import Path
+
+from constants import REPO_ROOT
+
 
 def load_patterns():
     """Load and parse patterns.json."""
-    patterns_file = Path(__file__).parent.parent / "data" / "patterns.json"
+    patterns_file = REPO_ROOT / "data" / "patterns.json"
     with open(patterns_file) as f:
         return json.load(f)
 
@@ -104,7 +106,7 @@ def validate_pattern(pattern, index):
 
 def validate_diagram_files(data):
     """Check that all referenced diagram files exist."""
-    base_path = Path(__file__).parent.parent
+    base_path = REPO_ROOT
 
     for i, pattern in enumerate(data["patterns"]):
         if "diagram" in pattern and pattern["diagram"] and "file" in pattern["diagram"]:
