@@ -25,3 +25,9 @@ build/
 
 # Docker
 .env.local
+# Unit test / coverage reports
+.coverage
+.coverage.*
+*.cover
+coverage.xml
+htmlcov/
