@@ -31,3 +31,6 @@ build/
 *.cover
 coverage.xml
 htmlcov/
+
+# Local backlog: not versioned
+TODO.md
