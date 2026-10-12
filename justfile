@@ -72,3 +72,7 @@ import "../fleet-base/src/fleet_base/justfiles/shared/commit.just"
         # Watch for changes in data/ directory
         inotifywait -e modify data/patterns.json assets/diagrams/*.svg 2>/dev/null || sleep 2
     done
+
+# Unit tests: the gate the pre-push hook runs (fleet hook standard, fleet_base.hook_standard R4)
+test-unit:
+    just test
