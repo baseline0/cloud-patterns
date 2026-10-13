@@ -2,6 +2,8 @@
 # Cloud Patterns — local development recipes
 
 # Show available recipes
+import 'just/fleet-clean.just'
+
 @help:
     just --list
 
@@ -49,7 +51,8 @@
     docker compose restart
 
 # Clean up Docker resources
-@clean:
+# Renamed from `clean`: tears down Docker resources (compose down -v, system prune); it is not a file clean. The shared clean (fleet-clean.just) removes caches only.
+@clean-docker:
     docker compose down -v
     docker system prune -f
 

@@ -79,7 +79,7 @@ just down             # Stop services
 just check            # Run health checks
 just logs             # View live logs
 just restart          # Restart services
-just clean            # Remove Docker containers/volumes
+just clean-docker     # Remove Docker containers/volumes
 ```
 
 ---
