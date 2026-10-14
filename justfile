@@ -85,8 +85,8 @@ test-unit:
 
 # Falls back to manual commit if Ollama unavailable or commitmate fails
 commit:
-    fleet recipe commit
+    fleet recipe --name commit
 
 # Add all untracked files and commit with LLM or custom message
 commit-all:
-    fleet recipe commit-all
+    fleet recipe --name commit-all
