@@ -79,7 +79,7 @@ test-unit:
     just test
 
 # ============================================================================
-# Shared fleet recipes, run by fleet-base's installed tool (uv tool install --editable ~/projects/fleet-base).
+# Shared fleet recipes, run by fleet-base's installed tool (run `just -f ~/projects/fleet-base/justfile install-fleet`; ADR-020).
 # Each line calls `fleet recipe NAME`; define a recipe here instead to override it.
 # ============================================================================
 
