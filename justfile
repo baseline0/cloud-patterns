@@ -2,6 +2,8 @@
 # Cloud Patterns — local development recipes
 
 # Show available recipes
+import 'just/repo-push.just'
+
 import 'just/fleet-clean.just'
 
 @help:
